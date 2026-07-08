@@ -1,42 +1,52 @@
 package com.stellargear.cosmicplayer.services;
 
 import java.io.File;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
+import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
+import uk.co.caprica.vlcj.player.base.MediaPlayer;
 
 public class PlayerService {
 
-    private MediaPlayer mediaPlayer;
+    private final MediaPlayerFactory factory = new MediaPlayerFactory();
+    private final MediaPlayer mediaPlayer;
 
-    public void playSong(File song, double volume) {
-        if (
-            mediaPlayer != null &&
-            mediaPlayer.getStatus() == MediaPlayer.Status.PAUSED
-        ) {
-            mediaPlayer.play();
-            return;
-        }
+    public PlayerService() {
+        mediaPlayer = factory.mediaPlayers().newMediaPlayer();
+    }
 
-        if (mediaPlayer != null) mediaPlayer.stop();
-        Media media = new Media(song.toURI().toString());
-        mediaPlayer = new MediaPlayer(media);
-        mediaPlayer.setVolume(volume);
-        mediaPlayer.play();
+    public void playSong(File song, double val) {
+        changeVolume(val);
+        mediaPlayer.media().play(song.getAbsolutePath());
     }
 
     public void pause() {
-        if (mediaPlayer != null) mediaPlayer.pause();
+        mediaPlayer.controls().pause();
     }
 
     public void stop() {
-        if (mediaPlayer != null) mediaPlayer.stop();
+        mediaPlayer.controls().stop();
     }
 
-    public void setVolume(double volume) {
-        if (mediaPlayer != null) mediaPlayer.setVolume(volume);
+    public void changeVolume(double value) {
+        value = Math.max(0.0, Math.min(1.0, value));
+
+        if (value <= 0.0) {
+            mediaPlayer.audio().setVolume(0);
+            return;
+        }
+
+        double db = -12.0 * (1 - value);
+        double gain = Math.pow(10, db / 20.0);
+        int vol = (int) Math.round(gain * 100);
+
+        mediaPlayer.audio().setVolume(vol);
     }
 
-    public MediaPlayer.Status getStatus() {
-        return mediaPlayer != null ? mediaPlayer.getStatus() : null;
+    public boolean isPlaying() {
+        return mediaPlayer.status().isPlaying();
+    }
+
+    public void release() {
+        mediaPlayer.release();
+        factory.release();
     }
 }

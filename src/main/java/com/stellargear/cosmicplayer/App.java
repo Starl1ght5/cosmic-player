@@ -36,9 +36,7 @@ public class App extends Application {
             .getVolumeSlider()
             .valueProperty()
             .addListener((obs, old, val) -> {
-                if (mediaPlayer != null) mediaPlayer.setVolume(
-                    val.doubleValue()
-                );
+                mediaPlayer.changeVolume(val.doubleValue());
             });
 
         songList.selectedSongProperty().addListener((obs, old, nuevo) -> {
