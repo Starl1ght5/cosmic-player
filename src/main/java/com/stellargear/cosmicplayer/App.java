@@ -24,10 +24,16 @@ public class App extends Application {
 
         playerToolbar.getPlayBtn().setOnAction(e -> {
             String selected = songList.getSelected();
-            if (selected != null) mediaPlayer.playOrResume(
-                new File(folder, selected),
-                playerToolbar.getVolumeSlider().getValue()
-            );
+            if (selected != null) {
+                mediaPlayer.playOrResume(
+                    new File(folder, selected),
+                    playerToolbar.getVolumeSlider().getValue()
+                );
+
+                File song = new File(folder, selected);
+                var meta = fileService.readMetadata(song);
+                playerToolbar.setSongInfo(meta.title(), meta.artist());
+            }
         });
 
         playerToolbar
@@ -36,13 +42,6 @@ public class App extends Application {
             .addListener((obs, old, val) -> {
                 mediaPlayer.changeVolume(val.doubleValue());
             });
-
-        songList.selectedSongProperty().addListener((obs, old, nuevo) -> {
-            if (nuevo == null) return;
-            File song = new File(folder, nuevo);
-            var meta = fileService.readMetadata(song);
-            playerToolbar.setSongInfo(meta.title(), meta.artist());
-        });
 
         BorderPane root = new BorderPane();
         root.setCenter(songList.getNode());
