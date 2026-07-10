@@ -8,7 +8,7 @@ import uk.co.caprica.vlcj.player.base.State;
 
 public class PlayerService {
 
-    private final MediaPlayerFactory factory = new MediaPlayerFactory();
+    private final MediaPlayerFactory factory = new MediaPlayerFactory("--no-video");
     private final MediaPlayer mediaPlayer;
 
     private double currentVolume = 1.0;
