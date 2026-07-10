@@ -1,10 +1,12 @@
 package com.stellargear.cosmicplayer;
 
+import java.util.List;
+
 import com.stellargear.cosmicplayer.services.FileService;
 import com.stellargear.cosmicplayer.services.PlayerService;
+import com.stellargear.cosmicplayer.services.PlayerService.Song;
 import com.stellargear.cosmicplayer.ui.PlayerToolbar;
 import com.stellargear.cosmicplayer.ui.SongList;
-import java.io.File;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -13,6 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.concurrent.Task;
 
 public class App extends Application {
 
@@ -23,20 +26,48 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) {
-        File folder = new File("/home/dimewolf/Música/");
-        songList.setItems(fileService.getSongNames("/home/dimewolf/Música/"));
+        
+        BorderPane root = new BorderPane();
+        root.setCenter(songList.getNode());
+        root.setBottom(playerToolbar.getNode());
+
+        Scene scene = new Scene(root, 1000, 600);
+        stage.setScene(scene);
+        stage.setTitle("Cosmic Music Player");
+
+        scene
+            .getStylesheets()
+            .add(getClass().getResource("/global.css").toExternalForm());
+
+        stage.show();
+
+        Task<List<Song>> loadSongsTask = new Task<>() {
+            @Override
+            protected List<Song> call() {
+                return fileService.getSongs("/home/dimewolf/Música/");
+            }
+        };
+
+        loadSongsTask.setOnSucceeded(e -> {
+            songList.setItems(loadSongsTask.getValue());
+        });
+
+        loadSongsTask.setOnFailed(e -> {
+            loadSongsTask.getException().printStackTrace();
+        });
+
+        Thread thread = new Thread(loadSongsTask);
+        thread.setDaemon(true);
+        thread.start();
 
         playerToolbar.getPlayBtn().setOnAction(e -> {
-            String selected = songList.getSelected();
-            if (selected != null) {
-                mediaPlayer.playOrResume(
-                    new File(folder, selected),
-                    playerToolbar.getVolumeSlider().getValue()
-                );
-
-                File song = new File(folder, selected);
-                var meta = fileService.readMetadata(song);
-                playerToolbar.setSongInfo(meta.title(), meta.artist());
+            Song selected = songList.getSelected();
+                if (selected != null) {
+                    mediaPlayer.playOrResume(
+                        selected.file(),
+                        playerToolbar.getVolumeSlider().getValue()
+                    );
+                    playerToolbar.setSongInfo(selected.title(), selected.artist());
             }
         });
 
@@ -89,19 +120,6 @@ public class App extends Application {
             }
         });
 
-        BorderPane root = new BorderPane();
-        root.setCenter(songList.getNode());
-        root.setBottom(playerToolbar.getNode());
-
-        Scene scene = new Scene(root, 1000, 600);
-        stage.setScene(scene);
-        stage.setTitle("Cosmic Music Player");
-
-        scene
-            .getStylesheets()
-            .add(getClass().getResource("/global.css").toExternalForm());
-
-        stage.show();
     }
 
     private static String formatTime(long ms) {
