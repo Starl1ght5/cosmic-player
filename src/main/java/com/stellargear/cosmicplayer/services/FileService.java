@@ -28,6 +28,10 @@ public class FileService {
                 SongMetadata meta = readMetadata(f);
                 return new Song(f, meta.title(), meta.artist(), meta.length());
             })
+            .sorted(Comparator.comparing(
+                (Song s) -> s.title() == null ? "" : s.title(),
+                String.CASE_INSENSITIVE_ORDER
+            ))
             .toList();
     }
 
