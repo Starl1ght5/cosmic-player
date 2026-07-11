@@ -20,6 +20,24 @@ public class SongList {
             return listView;
         }
 
+        public Song getNext() {
+            List<Song> items = listView.getItems();
+            if (items.isEmpty()) return null;
+
+            int currentIndex = listView.getSelectionModel().getSelectedIndex();
+            int nextIndex = (currentIndex + 1) % items.size();
+            return items.get(nextIndex);
+        }
+
+        public Song getPrevious() {
+            List<Song> items = listView.getItems();
+            if (items.isEmpty()) return null;
+
+            int currentIndex = listView.getSelectionModel().getSelectedIndex();
+            int previousIndex = (currentIndex - 1) % items.size();
+            return items.get(previousIndex);
+        }
+
         public void setItems(List<Song> items) {
             listView.setItems(FXCollections.observableArrayList(items));
         }
@@ -30,5 +48,9 @@ public class SongList {
 
         public Song getSelected() {
             return listView.getSelectionModel().getSelectedItem();
+        }
+
+        public void select(Song song) {
+            listView.getSelectionModel().select(song);
         }
 }
