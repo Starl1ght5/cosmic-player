@@ -16,45 +16,53 @@ import java.io.ByteArrayInputStream;
 
 public class PlayerToolbar {
 
-    private final GridPane bar;
+    private final GridPane bar = new GridPane();
+
     private final Label songName = new Label("Song Name");
     private final Label artistName = new Label("Artist");
-    private final Button playBtn = new Button("Reproducir");
-    private final Slider volumeSlider = new Slider(0, 1, 1);
-    private final VBox songBox = new VBox(songName, artistName);
-    private final ImageView coverArtBox = new ImageView();
-    private final Button nextBtn = new Button("Next");
-    private final Button lastBtn = new Button("Last");
-    private final ToggleButton shuffleBtn = new ToggleButton("Shuffle");
-
-    private final Slider progressSlider = new Slider(0, 100, 0);
     private final Label currentTimeLabel = new Label("00:00");
     private final Label totalTimeLabel = new Label("00:00");
 
+    private final Button playBtn = new Button();
+    private final Button nextBtn = new Button();
+    private final Button lastBtn = new Button();
+
+    private final ImageView coverArtBox = new ImageView();
+
+    private final ToggleButton shuffleBtn = new ToggleButton();
+
+    private final Slider progressSlider = new Slider(0, 100, 0);
+    private final Slider volumeSlider = new Slider(0, 1, 1);
+
+    private final VBox songBox = new VBox(songName, artistName);
+
+    private final HBox leftBox = new HBox(8, coverArtBox, songBox);
+    private final HBox playerBox = new HBox(4, lastBtn, playBtn, nextBtn);
+    private final VBox rightBox = new VBox(4, volumeSlider, shuffleBtn);
+    private final HBox progressBox = new HBox(8, currentTimeLabel, progressSlider, totalTimeLabel);
+
+    private final ImageView playBtnImgView = new ImageView();
+
+    private boolean isPlaying = false;
+
     public PlayerToolbar() {
-        HBox leftBox = new HBox(8, coverArtBox, songBox);
+        VBox centerBox = new VBox(3, progressBox, playerBox);
+
         leftBox.setAlignment(Pos.CENTER_LEFT);
-        HBox centerBox = new HBox(lastBtn, playBtn, nextBtn);
-        centerBox.setAlignment(Pos.CENTER);
-        HBox rightBox = new HBox(4 ,shuffleBtn, volumeSlider);
-        rightBox.setAlignment(Pos.CENTER_RIGHT);
+        playerBox.setAlignment(Pos.CENTER);
+        rightBox.setAlignment(Pos.CENTER);
+        songBox.setAlignment(Pos.CENTER_LEFT);
 
         progressSlider.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(progressSlider, Priority.ALWAYS);
-        HBox progressBox = new HBox(8, currentTimeLabel, progressSlider, totalTimeLabel);
-        progressBox.setAlignment(Pos.CENTER);
-
-        bar = new GridPane();
 
         ColumnConstraints left = new ColumnConstraints();
-        left.setPercentWidth(35);
+        left.setPercentWidth(30);
         ColumnConstraints center = new ColumnConstraints();
-        center.setPercentWidth(30);
+        center.setPercentWidth(40);
         ColumnConstraints right = new ColumnConstraints();
-        right.setPercentWidth(35);
+        right.setPercentWidth(30);
         bar.getColumnConstraints().addAll(left, center, right);
 
-        bar.add(progressBox, 0, 0, 3, 1);
         bar.add(leftBox, 0, 1);
         bar.add(centerBox, 1, 1);
         bar.add(rightBox, 2, 1);
@@ -63,6 +71,7 @@ public class PlayerToolbar {
         coverArtBox.setFitHeight(80);
         coverArtBox.setPreserveRatio(true);
 
+        HBox.setHgrow(progressSlider, Priority.ALWAYS);
         GridPane.setHgrow(leftBox, Priority.ALWAYS);
         GridPane.setHgrow(centerBox, Priority.ALWAYS);
         GridPane.setHgrow(rightBox, Priority.ALWAYS);
@@ -72,11 +81,78 @@ public class PlayerToolbar {
         centerBox.setMaxWidth(Double.MAX_VALUE);
         rightBox.setMaxWidth(Double.MAX_VALUE);
 
+        Image playBtnImg = new Image(getClass().getResourceAsStream("/icons/IcRoundPlayArrow.png"));
+        playBtnImgView.setImage(playBtnImg);
+        playBtnImgView.setFitHeight(40);
+        playBtnImgView.setFitWidth(40);
+        playBtnImgView.setPreserveRatio(true);
+        playBtn.setGraphic(playBtnImgView);
+
+        Image nextBtnImg = new Image(getClass().getResourceAsStream("/icons/IcRoundSkipNext.png"));
+        ImageView nextBtnImgView = new ImageView(nextBtnImg);
+        nextBtnImgView.setFitHeight(30);
+        nextBtnImgView.setFitWidth(30);
+        nextBtnImgView.setPreserveRatio(true);
+        nextBtn.setGraphic(nextBtnImgView);
+
+        Image lastBtnImg = new Image(getClass().getResourceAsStream("/icons/IcRoundSkipPrevious.png"));
+        ImageView lastBtnImgView = new ImageView(lastBtnImg);
+        lastBtnImgView.setFitHeight(30);
+        lastBtnImgView.setFitWidth(30);
+        lastBtnImgView.setPreserveRatio(true);
+        lastBtn.setGraphic(lastBtnImgView);
+
+        Image shuffleBtnImg = new Image(getClass().getResourceAsStream("/icons/IcOutlineShuffle.png"));
+        ImageView shuffleBtnImgView = new ImageView(shuffleBtnImg);
+        shuffleBtnImgView.setFitHeight(30);
+        shuffleBtnImgView.setFitWidth(30);
+        shuffleBtnImgView.setPreserveRatio(true);
+        shuffleBtn.setGraphic(shuffleBtnImgView);
+
         songBox.getStyleClass().add("song-box");
         songName.getStyleClass().add("song-name");
         bar.getStyleClass().add("player-toolbar");
         coverArtBox.setStyle("-fx-border-color: red; -fx-border-width: 2;");
         progressBox.getStyleClass().add("progress-box");
+        playBtn.getStyleClass().add("play-button");
+        shuffleBtn.getStyleClass().add("shuffle-button");
+        nextBtn.getStyleClass().add("next-button");
+        lastBtn.getStyleClass().add("last-button");
+        volumeSlider.getStyleClass().add("volume-slider");
+    }
+
+    public void changePlayButton () {
+        if (isPlaying) {
+            Image playBtnImg = new Image(getClass().getResourceAsStream("/icons/IcRoundPause.png"));
+            playBtnImgView.setImage(playBtnImg);
+        } else {
+            Image playBtnImg = new Image(getClass().getResourceAsStream("/icons/IcRoundPlayArrow.png"));
+            playBtnImgView.setImage(playBtnImg);
+        }
+    }
+
+    Image toImage(byte[] coverArtBytes) {
+        if (coverArtBytes == null || coverArtBytes.length == 0) {
+            return new Image(getClass().getResourceAsStream("/images/default_cover.png"));
+        }
+        return new Image(new ByteArrayInputStream(coverArtBytes));
+    }
+
+    /// Setters
+    public void setSongInfo(String title, String artist, byte[] coverArt) {
+        songName.setText(title);
+        artistName.setText(artist);
+        coverArtBox.setImage(toImage(coverArt));
+    }
+
+    public void changeIsPlaying (boolean value) {
+        isPlaying = value;
+        changePlayButton();
+    }
+
+    /// Getters
+    public ToggleButton getShuffleBtn () {
+        return shuffleBtn;
     }
 
     public GridPane getNode() {
@@ -104,7 +180,7 @@ public class PlayerToolbar {
     }
 
     public Slider getProgressSlider() {
-            return progressSlider;
+        return progressSlider;
     }
 
     public Label getCurrentTimeLabel() {
@@ -115,20 +191,4 @@ public class PlayerToolbar {
         return totalTimeLabel;
     }
 
-    public ToggleButton getShuffleBtn () {
-        return shuffleBtn;
-    }
-
-    public void setSongInfo(String title, String artist, byte[] coverArt) {
-        songName.setText(title);
-        artistName.setText(artist);
-        coverArtBox.setImage(toImage(coverArt));
-    }
-
-    Image toImage(byte[] coverArtBytes) {
-        if (coverArtBytes == null || coverArtBytes.length == 0) {
-            return new Image(getClass().getResourceAsStream("/images/default_cover.png"));
-        }
-        return new Image(new ByteArrayInputStream(coverArtBytes));
-    }
 }

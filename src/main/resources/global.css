@@ -1,16 +1,50 @@
+.root {
+    -ink-black: #0F0E1C;
+}
+
 .song-name {
     -fx-font-size: 16px;
     -fx-text-overrun: ellipsis;
 }
 
 .song-box {
+    -fx-text-background-color: white;
     -fx-spacing: 2px;
     -fx-padding: 4px;
 }
 
 .player-toolbar {
     -fx-spacing: 4px;
+    -fx-padding: 8px;
+    -fx-background-color: -ink-black;
+}
+
+.play-button {
+    -fx-padding: 6px;
+    -fx-border-radius: 20px;
+    -fx-background-radius: 20px;
+}
+
+.shuffle-button {
     -fx-padding: 4px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.next-button {
+    -fx-padding: 4px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.last-button {
+    -fx-padding: 4px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.volume-slider {
+    -fx-padding: 2px 50px;
 }
 
 .list-item {
