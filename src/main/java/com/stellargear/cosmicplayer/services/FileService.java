@@ -4,6 +4,9 @@ import java.io.File;
 import java.util.Comparator;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
@@ -14,13 +17,24 @@ import com.stellargear.cosmicplayer.services.PlayerService.Song;
 
 public class FileService {
 
+    private static final Set<String> AUDIO_EXTENSIONS = Set.of("mp3", "flac", "wav", "ogg", "m4a");
+
     public List<File> getSongFiles(String folderPath) {
         File folder = new File(folderPath);
         File[] files = folder.listFiles(File::isFile);
         if (files == null) return List.of();
         return Arrays.stream(files)
+            .filter(this::isAudioFile)
             .sorted(Comparator.comparing(File::getName))
             .toList();
+    }
+
+    private boolean isAudioFile(File file) {
+        String name = file.getName();
+        int dot = name.lastIndexOf('.');
+        if (dot < 0 || dot == name.length() - 1) return false;
+        String ext = name.substring(dot + 1).toLowerCase(Locale.ROOT);
+        return AUDIO_EXTENSIONS.contains(ext);
     }
 
     public List<Song> getSongs(String folderPath) {
