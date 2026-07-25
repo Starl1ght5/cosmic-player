@@ -57,6 +57,7 @@ public class FileService {
 
             String title = tag.getFirst(FieldKey.TITLE);
             String artist = tag.getFirst(FieldKey.ARTIST);
+            String album = tag.getFirst(FieldKey.ALBUM);
             int dur = f.getAudioHeader().getTrackLength();
             String length = String.format("%02d:%02d", dur / 60, dur % 60);
 
@@ -67,11 +68,11 @@ public class FileService {
                 coverArtBytes = artwork.getBinaryData();
             }
 
-            return new SongMetadata(title, artist, length, coverArtBytes);
+            return new SongMetadata(title, artist, album, length, coverArtBytes);
         } catch (Exception e) {
-            return new SongMetadata(file.getName(), file.getName(), file.getName(), null);
+            return new SongMetadata(file.getName(), "Unknow Artist", "Unknow Album", "00:00", null);
         }
     }
 
-    public record SongMetadata(String title, String artist, String length, byte[] coverArt) {}
+    public record SongMetadata(String title, String artist, String album, String length, byte[] coverArt) {}
 }
