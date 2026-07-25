@@ -12,6 +12,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 
 import com.stellargear.cosmicplayer.utils.Methods;
 
@@ -71,7 +72,12 @@ public class PlayerToolbar {
         coverArtBox.setFitWidth(80);
         coverArtBox.setFitHeight(80);
         coverArtBox.setPreserveRatio(true);
-
+        
+        Rectangle clip = new Rectangle(coverArtBox.getFitWidth(), coverArtBox.getFitHeight());
+        clip.setArcWidth(30);
+        clip.setArcHeight(30);
+        coverArtBox.setClip(clip);
+        
         HBox.setHgrow(progressSlider, Priority.ALWAYS);
         GridPane.setHgrow(leftBox, Priority.ALWAYS);
         GridPane.setHgrow(centerBox, Priority.ALWAYS);
