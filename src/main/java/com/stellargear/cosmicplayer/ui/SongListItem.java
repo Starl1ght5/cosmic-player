@@ -13,34 +13,40 @@ public class SongListItem {
 
     private HBox songTimeBox;
     private HBox generalBox;
+    private HBox extraDetailsBox;
 
     private VBox controlBox;
 
     private Label songName = new Label("");
     private Label artistName = new Label("");
     private Label songDuration = new Label("");
+    private Label albumName = new Label("");
+    private Label releaseDate = new Label("");
 
     private final ImageView coverArtBox = new ImageView();
 
-    public SongListItem (File songFile, String song, String artist, String duration, byte[] imageData) {
-        songTimeBox = new HBox(5, songName, songDuration);
-        controlBox = new VBox(songTimeBox, artistName);
-        generalBox = new HBox(4, coverArtBox, controlBox);
+    public SongListItem (File songFile, String song, String artist, String album, String date, String duration, byte[] imageData) {
+        songTimeBox = new HBox(8, songName, songDuration);
+        extraDetailsBox = new HBox(8, albumName, releaseDate);
+        controlBox = new VBox(2, songTimeBox, artistName, extraDetailsBox);
+        generalBox = new HBox(10, coverArtBox, controlBox);
 
-        coverArtBox.setFitWidth(40);
-        coverArtBox.setFitHeight(40);
+        coverArtBox.setFitWidth(50);
+        coverArtBox.setFitHeight(50);
         coverArtBox.setPreserveRatio(true);
 
         generalBox.getStyleClass().add("list-item");
 
-        update(songFile, song, artist, duration, imageData);
+        update(songFile, song, artist, album, date, duration, imageData);
     }
 
-    public void update(File songFile, String song, String artist, String duration, byte[] imageData) {
+    public void update(File songFile, String song, String artist, String album, String date, String duration, byte[] imageData) {
         songName.setText(song);
         artistName.setText(artist);
         songDuration.setText(duration);
-        coverArtBox.setImage(Methods.toCachedThumbnail(songFile, imageData, 40));
+        albumName.setText(album);
+        releaseDate.setText(date);
+        coverArtBox.setImage(Methods.toCachedThumbnail(songFile, imageData, 50));
     }
 
     public HBox getNode () {
