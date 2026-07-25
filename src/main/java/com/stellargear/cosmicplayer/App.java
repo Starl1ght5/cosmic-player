@@ -45,7 +45,7 @@ public class App extends Application {
         root.setCenter(songList.getNode());
         root.setBottom(playerToolbar.getNode());
 
-        Scene scene = new Scene(root, 1000, 600);
+        Scene scene = new Scene(root, 900, 600);
         stage.setScene(scene);
         stage.setTitle("Cosmic Music Player");
 

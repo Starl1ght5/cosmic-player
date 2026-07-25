@@ -53,9 +53,19 @@
 }
 
 .list-item {
-    -fx-padding: 6px 10px;
+    -fx-padding: 8px 10px;
     -fx-spacing: 8px;
     -fx-background-color: -ink-black;
     -fx-text-background-color: white;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
     -fx-font-size: 14px;
+}
+
+.album-name-label {
+    -fx-font-size: 11px;
+}
+
+.artist-name-label {
+    -fx-font-size: 13px;
 }
