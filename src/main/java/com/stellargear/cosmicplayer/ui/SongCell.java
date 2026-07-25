@@ -18,10 +18,10 @@ public class SongCell extends ListCell<Song> {
         }
 
         if (item == null) {
-            item = new SongListItem(song.file(), song.title(), song.artist(), song.album(), song.releasaeDate(), song.duration(), song.coverArt());
+            item = new SongListItem(song.file(), song.title(), song.artist(), song.album(), song.duration(), song.coverArt());
             setGraphic(item.getNode());
         } else {
-            item.update(song.file(), song.title(), song.artist(), song.album(), song.releasaeDate(), song.duration(), song.coverArt());
+            item.update(song.file(), song.title(), song.artist(), song.album(), song.duration(), song.coverArt());
         }
     }
 }

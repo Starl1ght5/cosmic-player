@@ -41,7 +41,7 @@ public class FileService {
         return getSongFiles(folderPath).stream()
             .map(f -> {
                 SongMetadata meta = readMetadata(f);
-                return new Song(f, meta.title(), meta.artist(), meta.album(), meta.releaseDate(), meta.length(), meta.coverArt());
+                return new Song(f, meta.title(), meta.artist(), meta.album(), meta.length(), meta.coverArt());
             })
             .sorted(Comparator.comparing(
                 (Song s) -> s.title() == null ? "" : s.title(),
@@ -58,7 +58,6 @@ public class FileService {
             String title = tag.getFirst(FieldKey.TITLE);
             String artist = tag.getFirst(FieldKey.ARTIST);
             String album = tag.getFirst(FieldKey.ALBUM);
-            String releaseDate = tag.getFirst(FieldKey.ALBUM_YEAR);
             int dur = f.getAudioHeader().getTrackLength();
             String length = String.format("%02d:%02d", dur / 60, dur % 60);
 
@@ -69,11 +68,11 @@ public class FileService {
                 coverArtBytes = artwork.getBinaryData();
             }
 
-            return new SongMetadata(title, artist, album, releaseDate, length, coverArtBytes);
+            return new SongMetadata(title, artist, album, length, coverArtBytes);
         } catch (Exception e) {
-            return new SongMetadata(file.getName(), "Unknow Artist", "Unknow Album", "Unknow Date", "00:00", null);
+            return new SongMetadata(file.getName(), "Unknow Artist", "Unknow Album", "00:00", null);
         }
     }
 
-    public record SongMetadata(String title, String artist, String album, String releaseDate, String length, byte[] coverArt) {}
+    public record SongMetadata(String title, String artist, String album, String length, byte[] coverArt) {}
 }

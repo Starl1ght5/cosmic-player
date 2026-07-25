@@ -109,5 +109,5 @@ public class PlayerService {
         return mediaPlayer.status().state();
     }
 
-    public record Song(File file, String title, String artist, String album, String releasaeDate, String duration, byte[] coverArt) {}
+    public record Song(File file, String title, String artist, String album, String duration, byte[] coverArt) {}
 }
