@@ -14,6 +14,10 @@
     -fx-padding: 4px;
 }
 
+.control-box {
+    -fx-padding: 0px 10px;
+}
+
 .player-toolbar {
     -fx-spacing: 4px;
     -fx-padding: 8px;
@@ -59,13 +63,13 @@
     -fx-text-background-color: white;
     -fx-border-radius: 10px;
     -fx-background-radius: 10px;
-    -fx-font-size: 14px;
+    -fx-font-size: 16px;
 }
 
 .album-name-label {
-    -fx-font-size: 11px;
+    -fx-font-size: 12px;
 }
 
 .artist-name-label {
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
 }
