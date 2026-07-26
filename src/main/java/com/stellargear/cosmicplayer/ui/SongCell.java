@@ -5,7 +5,13 @@ import com.stellargear.cosmicplayer.services.PlayerService.Song;
 import javafx.scene.control.ListCell;
 
 public class SongCell extends ListCell<Song> {
+
     private SongListItem item;
+
+    public SongCell () {
+        setMaxWidth(Double.MAX_VALUE);
+        setPrefWidth(0);
+    }
 
     @Override
     protected void updateItem(Song song, boolean empty) {
