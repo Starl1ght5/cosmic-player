@@ -2,6 +2,7 @@ package com.stellargear.cosmicplayer.services;
 
 import java.io.File;
 import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -18,6 +19,8 @@ import com.stellargear.cosmicplayer.services.PlayerService.Song;
 public class FileService {
 
     private static final Set<String> AUDIO_EXTENSIONS = Set.of("mp3", "flac", "wav", "ogg", "m4a");
+
+    private List<Song> songs = new ArrayList<Song>();
 
     public List<File> getSongFiles(String folderPath) {
         File folder = new File(folderPath);
@@ -37,8 +40,8 @@ public class FileService {
         return AUDIO_EXTENSIONS.contains(ext);
     }
 
-    public List<Song> getSongs(String folderPath) {
-        return getSongFiles(folderPath).stream()
+    public void getSongs(String folderPath) {
+        songs = getSongFiles(folderPath).stream()
             .map(f -> {
                 SongMetadata meta = readMetadata(f);
                 return new Song(f, meta.title(), meta.artist(), meta.album(), meta.length(), meta.coverArt());
@@ -72,6 +75,15 @@ public class FileService {
         } catch (Exception e) {
             return new SongMetadata(file.getName(), "Unknow Artist", "Unknow Album", "00:00", null);
         }
+    }
+
+    public List<Song> returnSongList () {
+        return songs;
+    }
+
+    public ArrayList<Song> returnArrayList () {
+        ArrayList<Song> list = new ArrayList<>(songs);
+        return list;
     }
 
     public record SongMetadata(String title, String artist, String album, String length, byte[] coverArt) {}

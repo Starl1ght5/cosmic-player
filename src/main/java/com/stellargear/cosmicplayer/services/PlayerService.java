@@ -1,6 +1,7 @@
 package com.stellargear.cosmicplayer.services;
 
 import java.io.File;
+
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
