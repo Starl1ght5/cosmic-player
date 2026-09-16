@@ -16,6 +16,8 @@ import javafx.scene.shape.Rectangle;
 
 import com.stellargear.cosmicplayer.utils.Methods;
 
+import java.util.Objects;
+
 public class PlayerToolbar {
 
     private final GridPane bar = new GridPane();
@@ -88,28 +90,28 @@ public class PlayerToolbar {
         centerBox.setMaxWidth(Double.MAX_VALUE);
         rightBox.setMaxWidth(Double.MAX_VALUE);
 
-        Image playBtnImg = new Image(getClass().getResourceAsStream("/icons/IcRoundPlayArrow.png"));
+        Image playBtnImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/IcRoundPlayArrow.png")));
         playBtnImgView.setImage(playBtnImg);
         playBtnImgView.setFitHeight(40);
         playBtnImgView.setFitWidth(40);
         playBtnImgView.setPreserveRatio(true);
         playBtn.setGraphic(playBtnImgView);
 
-        Image nextBtnImg = new Image(getClass().getResourceAsStream("/icons/IcRoundSkipNext.png"));
+        Image nextBtnImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/IcRoundSkipNext.png")));
         ImageView nextBtnImgView = new ImageView(nextBtnImg);
         nextBtnImgView.setFitHeight(30);
         nextBtnImgView.setFitWidth(30);
         nextBtnImgView.setPreserveRatio(true);
         nextBtn.setGraphic(nextBtnImgView);
 
-        Image lastBtnImg = new Image(getClass().getResourceAsStream("/icons/IcRoundSkipPrevious.png"));
+        Image lastBtnImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/IcRoundSkipPrevious.png")));
         ImageView lastBtnImgView = new ImageView(lastBtnImg);
         lastBtnImgView.setFitHeight(30);
         lastBtnImgView.setFitWidth(30);
         lastBtnImgView.setPreserveRatio(true);
         lastBtn.setGraphic(lastBtnImgView);
 
-        Image shuffleBtnImg = new Image(getClass().getResourceAsStream("/icons/IcOutlineShuffle.png"));
+        Image shuffleBtnImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/IcOutlineShuffle.png")));
         ImageView shuffleBtnImgView = new ImageView(shuffleBtnImg);
         shuffleBtnImgView.setFitHeight(30);
         shuffleBtnImgView.setFitWidth(30);
@@ -129,10 +131,10 @@ public class PlayerToolbar {
 
     public void changePlayButton () {
         if (isPlaying) {
-            Image playBtnImg = new Image(getClass().getResourceAsStream("/icons/IcRoundPause.png"));
+            Image playBtnImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/IcRoundPause.png")));
             playBtnImgView.setImage(playBtnImg);
         } else {
-            Image playBtnImg = new Image(getClass().getResourceAsStream("/icons/IcRoundPlayArrow.png"));
+            Image playBtnImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/IcRoundPlayArrow.png")));
             playBtnImgView.setImage(playBtnImg);
         }
     }

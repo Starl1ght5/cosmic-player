@@ -1,7 +1,9 @@
 package com.stellargear.cosmicplayer;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.stellargear.cosmicplayer.services.FileService;
 import com.stellargear.cosmicplayer.services.PlayerService;
@@ -15,6 +17,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -35,6 +38,8 @@ public class App extends Application {
 
     Stage primaryStage;
 
+    private ArrayList<File> currentPlaylist = new ArrayList<File>();
+
     @Override
     public void start(Stage stage) {
 
@@ -47,11 +52,11 @@ public class App extends Application {
 
         Scene scene = new Scene(root, 900, 600);
         stage.setScene(scene);
-        stage.setTitle("Cosmic Music Player");
+        stage.setTitle("Cosmic Music Player V0.0.1");
 
         scene
             .getStylesheets()
-            .add(getClass().getResource("/global.css").toExternalForm());
+            .add(Objects.requireNonNull(getClass().getResource("/global.css")).toExternalForm());
 
         stage.show();
 
@@ -111,6 +116,29 @@ public class App extends Application {
 
         var progressSlider = playerToolbar.getProgressSlider();
 
+        Timeline progressUpdater = createProgressUpdater(progressSlider);
+        progressUpdater.play();
+
+        progressSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
+            if (!isChanging) {
+                long length = mediaPlayer.getLength();
+                if (length > 0) {
+                    long newTime = (long) ((progressSlider.getValue() / 100.0) * length);
+                    mediaPlayer.seek(newTime);
+                }
+            }
+        });
+
+        progressSlider.setOnMouseReleased(e -> {
+            long length = mediaPlayer.getLength();
+            if (length > 0) {
+                long newTime = (long) ((progressSlider.getValue() / 100.0) * length);
+                mediaPlayer.seek(newTime);
+            }
+        });
+    }
+
+    private Timeline createProgressUpdater(Slider progressSlider) {
         Timeline progressUpdater = new Timeline(
             new KeyFrame(Duration.millis(300), e -> {
                 if (progressSlider.isValueChanging() || !mediaPlayer.isPlayable()) {
@@ -131,25 +159,7 @@ public class App extends Application {
         );
 
         progressUpdater.setCycleCount(Timeline.INDEFINITE);
-        progressUpdater.play();
-
-        progressSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
-            if (!isChanging) {
-                long length = mediaPlayer.getLength();
-                if (length > 0) {
-                    long newTime = (long) ((progressSlider.getValue() / 100.0) * length);
-                    mediaPlayer.seek(newTime);
-                }
-            }
-        });
-
-        progressSlider.setOnMouseReleased(e -> {
-            long length = mediaPlayer.getLength();
-            if (length > 0) {
-                long newTime = (long) ((progressSlider.getValue() / 100.0) * length);
-                mediaPlayer.seek(newTime);
-            }
-        });
+        return progressUpdater;
     }
 
     private void playNextSong() {
@@ -229,10 +239,7 @@ public class App extends Application {
         State status = mediaPlayer.getPlayingState();
 
         switch (status) {
-            case PLAYING:
-                playerToolbar.changeIsPlaying(true);
-                break;
-            case OPENING:
+            case PLAYING, OPENING:
                 playerToolbar.changeIsPlaying(true);
                 break;
             case PAUSED:
@@ -241,5 +248,14 @@ public class App extends Application {
             default:
                 break;
         }
+    }
+
+    public void generatePlaylist () {
+
+    }
+
+
+    public void generateRandomPlaylist () {
+
     }
 }

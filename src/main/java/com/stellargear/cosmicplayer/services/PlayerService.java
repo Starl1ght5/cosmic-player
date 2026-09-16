@@ -1,6 +1,7 @@
 package com.stellargear.cosmicplayer.services;
 
 import java.io.File;
+
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
@@ -72,7 +73,7 @@ public class PlayerService {
     }
 
     private void applyVolume(double value) {
-        value = Math.max(0.0, Math.min(1.0, value));
+        value = Math.clamp(value, 0.0, 1.0);
         if (value <= 0.0) {
             mediaPlayer.audio().setVolume(0);
             return;

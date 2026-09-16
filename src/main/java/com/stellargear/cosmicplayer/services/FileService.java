@@ -68,6 +68,12 @@ public class FileService {
                 coverArtBytes = artwork.getBinaryData();
             }
 
+            if (album.isEmpty()) {
+                album = "Unknow Album";
+            } else if (artist.isEmpty()) {
+                artist = "Unknow Artist";
+            }
+
             return new SongMetadata(title, artist, album, length, coverArtBytes);
         } catch (Exception e) {
             return new SongMetadata(file.getName(), "Unknow Artist", "Unknow Album", "00:00", null);

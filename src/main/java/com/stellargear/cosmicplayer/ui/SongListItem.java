@@ -9,7 +9,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.image.ImageView;
 
@@ -24,34 +23,36 @@ public class SongListItem {
 
     private final ImageView coverArtBox = new ImageView();
 
-    private final HBox songNameBox = new HBox(8, songName);
     private final  HBox imageBox = new HBox(coverArtBox);
     private final HBox extraBox = new HBox(songDuration);
 
-    private final VBox controlBox = new VBox(songNameBox, artistName, albumName);
-    
-    public SongListItem (File songFile, String song, String artist, String album, String duration, byte[] imageData) {
-        
-        coverArtBox.setFitWidth(60);
-        coverArtBox.setFitHeight(60);
-        coverArtBox.setPreserveRatio(true);
+    private final HBox controlBox = new HBox(30, songName, artistName, albumName, extraBox);
 
-        imageBox.setAlignment(Pos.CENTER);
+    public SongListItem (File songFile, String song, String artist, String album, String duration, byte[] imageData) {
+
+        coverArtBox.setFitWidth(40);
+        coverArtBox.setFitHeight(40);
+        coverArtBox.setPreserveRatio(true);
+        coverArtBox.setLayoutY(40);
+        coverArtBox.setLayoutX(40);
+        
+        imageBox.setAlignment(Pos.CENTER_LEFT);
+        generalBox.setAlignment(Pos.CENTER);
         extraBox.setAlignment(Pos.CENTER_RIGHT);
 
         ColumnConstraints left = new ColumnConstraints();
-        left.setPercentWidth(10);
+        left.setPercentWidth(8);
         ColumnConstraints center = new ColumnConstraints();
-        center.setPercentWidth(80);
+        center.setPercentWidth(89);
         center.setMinWidth(0);
         ColumnConstraints right = new ColumnConstraints();
-        right.setPercentWidth(10);
+        right.setPercentWidth(3);
         generalBox.getColumnConstraints().addAll(left, center, right);
         generalBox.setMinWidth(0);
 
         generalBox.add(imageBox, 0, 0);
         generalBox.add(controlBox, 1, 0);
-        generalBox.add(extraBox, 2, 0);
+        generalBox.add(extraBox, 1, 0);
 
         generalBox.getStyleClass().add("list-item");
         albumName.getStyleClass().add("album-name-label");
@@ -59,8 +60,8 @@ public class SongListItem {
         controlBox.getStyleClass().add("control-box");
 
         Rectangle clip = new Rectangle(coverArtBox.getFitWidth(), coverArtBox.getFitHeight());
-        clip.setArcWidth(30);
-        clip.setArcHeight(30);
+        clip.setArcWidth(10);
+        clip.setArcHeight(10);
         coverArtBox.setClip(clip);
 
         update(songFile, song, artist, album, duration, imageData);

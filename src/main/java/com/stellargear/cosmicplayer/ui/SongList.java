@@ -51,8 +51,7 @@ public class SongList {
 
     public int searchIndex (int value, List<Song> list) {
         int currentIndex = listView.getSelectionModel().getSelectedIndex();
-        int nextIndex = (currentIndex + value) % list.size();
-        return nextIndex;
+        return (currentIndex + value) % list.size();
     }
 
     /// Setters

@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class Methods {
 
@@ -21,7 +22,7 @@ public final class Methods {
     
     public static Image toImage(byte[] coverArtBytes, double size) {
         if (coverArtBytes == null || coverArtBytes.length == 0) {
-            return new Image(Methods.class.getResourceAsStream("/icons/IcRoundPlayArrow.png"),
+            return new Image(Objects.requireNonNull(Methods.class.getResourceAsStream("/icons/IcRoundPlayArrow.png")),
                 size, size, true, true);
         }
         return new Image(new ByteArrayInputStream(coverArtBytes), size, size, true, true);

@@ -14,10 +14,6 @@
     -fx-padding: 4px;
 }
 
-.control-box {
-    -fx-padding: 0px 10px;
-}
-
 .player-toolbar {
     -fx-spacing: 4px;
     -fx-padding: 8px;
