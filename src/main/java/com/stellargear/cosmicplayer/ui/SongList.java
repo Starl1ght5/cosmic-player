@@ -1,7 +1,6 @@
 package com.stellargear.cosmicplayer.ui;
 
 import java.util.List;
-import java.util.Random;
 
 import com.stellargear.cosmicplayer.services.PlayerService.Song;
 
@@ -20,38 +19,27 @@ public class SongList {
         listView.getStyleClass().add("list-view");
     }
 
-    public Song getNext() {
-        List<Song> items = listView.getItems();
-        if (items.isEmpty()) return null;
-
-        if (shuffleMode) {
-            return items.get(getNextRandom(items));
-        } else {
-            return items.get(searchIndex(1, items));
-        }
+    public Song getNext(List<Song> list) {
+        if (list.isEmpty()) return null;
+        return list.get(searchIndex(1, list));
     }
 
-    public Song getPrevious() {
-        List<Song> items = listView.getItems();
-        if (items.isEmpty()) return null;
-        return items.get(searchIndex(-1, items));
-    }
-
-    public int getNextRandom(List<Song> list) {
-        Random randi = new Random();
-        int currentIndex = listView.getSelectionModel().getSelectedIndex();
-        int randomIndex;
-        
-        do {
-            randomIndex = randi.nextInt(list.size());
-        } while (randomIndex == currentIndex);
-        
-        return randomIndex;
+    public Song getPrevious(List<Song> list) {
+        if (list.isEmpty()) return null;
+        return list.get(searchIndex(-1, list));
     }
 
     public int searchIndex (int value, List<Song> list) {
-        int currentIndex = listView.getSelectionModel().getSelectedIndex();
-        return (currentIndex + value) % list.size();
+        Song current = getSelected();
+        int currentIndex = list.indexOf(current);
+        
+        if (currentIndex == -1) {
+            return value >= 0 ? 0 : list.size() - 1;
+        }
+
+        int size = list.size();
+        int nextIndex = ((currentIndex + value) % size + size) % size;
+        return nextIndex;
     }
 
     /// Setters
@@ -84,7 +72,11 @@ public class SongList {
         return listView;
     }
 
-    public ListView<Song>  getList () {
+    public ListView<Song> getList () {
         return listView;
+    }
+
+    public List<Song> getItems () {
+        return listView.getItems();
     }
 }

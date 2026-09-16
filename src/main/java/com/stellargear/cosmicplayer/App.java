@@ -3,7 +3,7 @@ package com.stellargear.cosmicplayer;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Random;
 
 import com.stellargear.cosmicplayer.services.FileService;
 import com.stellargear.cosmicplayer.services.PlayerService;
@@ -17,7 +17,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Slider;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -38,7 +37,7 @@ public class App extends Application {
 
     Stage primaryStage;
 
-    private ArrayList<File> currentPlaylist = new ArrayList<File>();
+    private List<Song> currentPlaylist = new ArrayList<Song>();
 
     @Override
     public void start(Stage stage) {
@@ -52,11 +51,11 @@ public class App extends Application {
 
         Scene scene = new Scene(root, 900, 600);
         stage.setScene(scene);
-        stage.setTitle("Cosmic Music Player V0.0.1");
+        stage.setTitle("Cosmic Music Player");
 
         scene
             .getStylesheets()
-            .add(Objects.requireNonNull(getClass().getResource("/global.css")).toExternalForm());
+            .add(getClass().getResource("/global.css").toExternalForm());
 
         stage.show();
 
@@ -83,7 +82,7 @@ public class App extends Application {
                     );
                     playerToolbar.setSongInfo(selected.title(), selected.artist(), selected.coverArt());
                     updateToolbarButtons();
-            }
+                }
         });
 
         songList.getList().setOnMouseClicked(event -> {
@@ -96,6 +95,10 @@ public class App extends Application {
                     );
                      playerToolbar.setSongInfo(selected.title(), selected.artist(), selected.coverArt());
                      updateToolbarButtons();
+
+                     if (songList.getShuffleState()) {
+                         generateRandomPlaylist();
+                     }
                 }
             }
         });
@@ -104,6 +107,7 @@ public class App extends Application {
             .getShuffleBtn()
             .setOnAction(e -> {
                 songList.setShuffle(playerToolbar.getShuffleBtn().isSelected());
+                generateRandomPlaylist();
             }
         );
 
@@ -116,7 +120,26 @@ public class App extends Application {
 
         var progressSlider = playerToolbar.getProgressSlider();
 
-        Timeline progressUpdater = createProgressUpdater(progressSlider);
+        Timeline progressUpdater = new Timeline(
+            new KeyFrame(Duration.millis(300), e -> {
+                if (progressSlider.isValueChanging() || !mediaPlayer.isPlayable()) {
+                    return;
+                }
+
+                long length = mediaPlayer.getLength();
+                long time = mediaPlayer.getTime();
+
+                if (length > 0) {
+                    double pct = (time / (double) length) * 100.0;
+                    progressSlider.setValue(pct);
+                }
+
+                playerToolbar.getCurrentTimeLabel().setText(formatTime(time));
+                playerToolbar.getTotalTimeLabel().setText(formatTime(length));
+            })
+        );
+
+        progressUpdater.setCycleCount(Timeline.INDEFINITE);
         progressUpdater.play();
 
         progressSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
@@ -138,32 +161,14 @@ public class App extends Application {
         });
     }
 
-    private Timeline createProgressUpdater(Slider progressSlider) {
-        Timeline progressUpdater = new Timeline(
-            new KeyFrame(Duration.millis(300), e -> {
-                if (progressSlider.isValueChanging() || !mediaPlayer.isPlayable()) {
-                    return;
-                }
-
-                long length = mediaPlayer.getLength();
-                long time = mediaPlayer.getTime();
-
-                if (length > 0) {
-                    double pct = (time / (double) length) * 100.0;
-                    progressSlider.setValue(pct);
-                }
-
-                playerToolbar.getCurrentTimeLabel().setText(formatTime(time));
-                playerToolbar.getTotalTimeLabel().setText(formatTime(length));
-            })
-        );
-
-        progressUpdater.setCycleCount(Timeline.INDEFINITE);
-        return progressUpdater;
-    }
-
     private void playNextSong() {
-        Song next = songList.getNext();
+        Song next;
+
+        if (songList.getShuffleState()) {
+            next = songList.getNext(currentPlaylist);
+        } else {
+            next = songList.getNext(songList.getItems());
+        }
         if (next == null) return;
 
         songList.select(next);
@@ -172,7 +177,14 @@ public class App extends Application {
     }
 
     private void playPreviousSong() {
-        Song last = songList.getPrevious();
+        Song last;
+
+        if (songList.getShuffleState()) {
+            last = songList.getPrevious(currentPlaylist);
+        } else {
+            last = songList.getPrevious(songList.getItems());
+        }
+
         if (last == null) return;
 
         songList.select(last);
@@ -218,7 +230,8 @@ public class App extends Application {
         Task<List<Song>> loadSongsTask = new Task<>() {
             @Override
             protected List<Song> call() {
-                return fileService.getSongs(folderPath);
+                fileService.getSongs(folderPath);
+                return fileService.returnSongList();
             }
         };
 
@@ -239,7 +252,10 @@ public class App extends Application {
         State status = mediaPlayer.getPlayingState();
 
         switch (status) {
-            case PLAYING, OPENING:
+            case PLAYING:
+                playerToolbar.changeIsPlaying(true);
+                break;
+            case OPENING:
                 playerToolbar.changeIsPlaying(true);
                 break;
             case PAUSED:
@@ -250,12 +266,18 @@ public class App extends Application {
         }
     }
 
-    public void generatePlaylist () {
-
-    }
-
-
     public void generateRandomPlaylist () {
+        ArrayList<Song> base = fileService.returnArrayList();
+        int total = base.size();
+        List<Song> mix = new ArrayList<Song>();
+        Random randi = new Random();
 
+        for (int i = 0; i < total; i++) {
+            int index = randi.nextInt(base.size());
+            mix.add(base.get(index));
+            base.remove(index);
+        }
+
+        currentPlaylist = mix;
     }
 }
