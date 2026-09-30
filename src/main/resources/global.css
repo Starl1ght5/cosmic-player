@@ -28,24 +28,28 @@
     -fx-padding: 6px;
     -fx-border-radius: 20px;
     -fx-background-radius: 20px;
+    -fx-cursor: hand;
 }
 
 .shuffle-button {
     -fx-padding: 4px;
     -fx-border-radius: 10px;
     -fx-background-radius: 10px;
+    -fx-cursor: hand;
 }
 
 .next-button {
     -fx-padding: 4px;
     -fx-border-radius: 10px;
     -fx-background-radius: 10px;
+    -fx-cursor: hand;
 }
 
 .last-button {
     -fx-padding: 4px;
     -fx-border-radius: 10px;
     -fx-background-radius: 10px;
+    -fx-cursor: hand;
 }
 
 .volume-slider {
@@ -53,19 +57,33 @@
 }
 
 .list-item {
-    -fx-padding: 8px 10px;
-    -fx-spacing: 8px;
-    -fx-background-color: -ink-black;
-    -fx-text-background-color: white;
-    -fx-border-radius: 10px;
-    -fx-background-radius: 10px;
-    -fx-font-size: 16px;
+    -fx-background-color: #0f1020;
+    -fx-background-radius: 12;
+    -fx-cursor: hand;
 }
 
-.album-name-label {
-    -fx-font-size: 12px;
+.list-item:hover {
+    -fx-background-color: #1a1b33;
+}
+
+.song-name-label {
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
 }
 
 .artist-name-label {
+    -fx-text-fill: #c4c7e0;
+    -fx-font-size: 13px;
+}
+
+.album-name-label {
+    -fx-text-fill: #8a8da8;
+    -fx-font-size: 12px;
+}
+
+.duration-label {
+    -fx-text-fill: #c4c7e0;
     -fx-font-size: 14px;
+    -fx-font-family: "Consolas", monospace;
 }
