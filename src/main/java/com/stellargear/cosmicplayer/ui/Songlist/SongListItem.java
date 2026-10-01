@@ -1,9 +1,10 @@
-package com.stellargear.cosmicplayer.ui;
+package com.stellargear.cosmicplayer.ui.Songlist;
 
 import java.io.File;
 
 import com.stellargear.cosmicplayer.utils.Methods;
 
+import com.stellargear.cosmicplayer.utils.TimeFormatter;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -31,7 +32,7 @@ public class SongListItem {
     private final GridPane textGrid = new GridPane();
     private final BorderPane root = new BorderPane();
 
-    public SongListItem(File songFile, String song, String artist, String album, String duration, byte[] imageData) {
+    public SongListItem(File songFile, String song, String artist, String album, long duration, byte[] imageData) {
 
         coverArtBox.setFitWidth(COVER_SIZE);
         coverArtBox.setFitHeight(COVER_SIZE);
@@ -88,11 +89,11 @@ public class SongListItem {
         return l;
     }
 
-    public void update(File songFile, String song, String artist, String album, String duration, byte[] imageData) {
+    public void update(File songFile, String song, String artist, String album, long duration, byte[] imageData) {
         songName.setText(song);
         artistName.setText(artist);
         albumName.setText(album);
-        songDuration.setText(duration);
+        songDuration.setText(TimeFormatter.format(duration));
         songName.setTooltip(new Tooltip(song));
         artistName.setTooltip(new Tooltip(artist));
         albumName.setTooltip(new Tooltip(album));
