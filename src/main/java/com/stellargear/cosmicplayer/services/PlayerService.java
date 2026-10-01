@@ -1,75 +1,143 @@
 package com.stellargear.cosmicplayer.services;
 
-import java.io.File;
+import com.stellargear.cosmicplayer.models.PlayerState;
+import com.stellargear.cosmicplayer.models.Song;
+
+import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ReadOnlyLongProperty;
+import javafx.beans.property.ReadOnlyLongWrapper;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleDoubleProperty;
 
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
-import uk.co.caprica.vlcj.player.base.State;
 
 public class PlayerService {
 
     private final MediaPlayerFactory factory = new MediaPlayerFactory("--no-video");
     private final MediaPlayer mediaPlayer;
 
-    private double currentVolume = 1.0;
-    private File currentSong;
+    private final ReadOnlyObjectWrapper<PlayerState> state = new ReadOnlyObjectWrapper<>(PlayerState.STOPPED);
+    private final ReadOnlyObjectWrapper<Song> currentSong = new ReadOnlyObjectWrapper<>();
+    private final ReadOnlyLongWrapper time = new ReadOnlyLongWrapper();
+    private final ReadOnlyLongWrapper length = new ReadOnlyLongWrapper();
+    private final DoubleProperty volume = new SimpleDoubleProperty(1.0);
+
     private Runnable onEndReached;
 
     public PlayerService() {
         mediaPlayer = factory.mediaPlayers().newMediaPlayer();
 
+        volume.addListener((obs, old, value) -> applyVolume(value.doubleValue()));
+
         mediaPlayer.events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
             @Override
-            public void playing(MediaPlayer mediaPlayer) {
-                applyVolume(currentVolume);
+            public void playing(MediaPlayer mp) {
+                Platform.runLater(() -> {
+                    applyVolume(volume.get());
+                    state.set(PlayerState.PLAYING);
+                });
             }
 
             @Override
-            public void finished(MediaPlayer mediaPlayer) {
-                if (onEndReached != null) {
-                    onEndReached.run();
-                }
+            public void paused(MediaPlayer mp) {
+                Platform.runLater(() -> state.set(PlayerState.PAUSED));
+            }
+
+            @Override
+            public void stopped(MediaPlayer mp) {
+                Platform.runLater(() -> {
+                    state.set(PlayerState.STOPPED);
+                    time.set(0);
+                });
+            }
+
+            @Override
+            public void timeChanged(MediaPlayer mp, long newTime) {
+                Platform.runLater(() -> time.set(newTime));
+            }
+
+            @Override
+            public void lengthChanged(MediaPlayer mp, long newLength) {
+                Platform.runLater(() -> length.set(newLength));
+            }
+
+            @Override
+            public void finished(MediaPlayer mp) {
+                Platform.runLater(() -> {
+                    state.set(PlayerState.STOPPED);
+                    time.set(0);
+                    if (onEndReached != null) {
+                        onEndReached.run();
+                    }
+                });
             }
         });
     }
 
-    public void playSong(File song, double val) {
-        mediaPlayer.media().play(song.getAbsolutePath());
-        changeVolume(val);
-        currentSong = song;
-    }
+    // ---------- Comandos ----------
 
-    public void playOrResume(File song, double val) {
-        State state = mediaPlayer.status().state();
+    public void playOrResume(Song song) {
+        boolean sameSong = song.equals(currentSong.get());
 
-        boolean isSameSong = currentSong != null && currentSong.equals(song);
+        if (!sameSong) {
+            start(song);
+            return;
+        }
 
-        if (isSameSong) {
-            switch (state) {
-                case PLAYING:
-                    mediaPlayer.controls().pause();
-                    break;
-                case PAUSED:
-                    changeVolume(val);
-                    mediaPlayer.controls().play();
-                    break;
-                default:
-                    playSong(song, val);
-                    break;
-            }
-        } else {
-            playSong(song, val);
+        switch (mediaPlayer.status().state()) {
+            case PLAYING -> mediaPlayer.controls().pause();
+            case PAUSED -> mediaPlayer.controls().play();
+            default -> start(song);
         }
     }
 
-    public void changeVolume(double value) {
-        currentVolume = value;
-        applyVolume(value);
+    public void seek(long timeMs) {
+        mediaPlayer.controls().setTime(timeMs);
+        time.set(timeMs);
     }
 
     public void setOnEndReached(Runnable callback) {
         this.onEndReached = callback;
+    }
+
+    public void release() {
+        mediaPlayer.release();
+        factory.release();
+    }
+
+    // ---------- Properties ----------
+
+    public ReadOnlyObjectProperty<PlayerState> stateProperty() {
+        return state.getReadOnlyProperty();
+    }
+
+    public ReadOnlyObjectProperty<Song> currentSongProperty() {
+        return currentSong.getReadOnlyProperty();
+    }
+
+    public ReadOnlyLongProperty timeProperty() {
+        return time.getReadOnlyProperty();
+    }
+
+    public ReadOnlyLongProperty lengthProperty() {
+        return length.getReadOnlyProperty();
+    }
+
+    public DoubleProperty volumeProperty() {
+        return volume;
+    }
+
+    // ---------- Internos ----------
+
+    private void start(Song song) {
+        currentSong.set(song);
+        time.set(0);
+        length.set(song.durationMs());
+        mediaPlayer.media().play(song.file().getAbsolutePath());
     }
 
     private void applyVolume(double value) {
@@ -80,35 +148,6 @@ public class PlayerService {
         }
         double db = -11.0 * (1 - value);
         double gain = Math.pow(10, db / 20.0);
-        int vol = (int) Math.round(gain * 100);
-        mediaPlayer.audio().setVolume(vol);
+        mediaPlayer.audio().setVolume((int) Math.round(gain * 100));
     }
-
-    public long getTime() {
-        return mediaPlayer.status().time();
-    }
-
-    public long getLength() {
-        return mediaPlayer.status().length();
-    }
-
-    public void seek(long timeMs) {
-        mediaPlayer.controls().setTime(timeMs);
-    }
-
-    public boolean isPlayable() {
-        State state = mediaPlayer.status().state();
-        return state == State.PLAYING || state == State.PAUSED;
-    }
-
-    public void release() {
-        mediaPlayer.release();
-        factory.release();
-    }
-
-    public State getPlayingState () {
-        return mediaPlayer.status().state();
-    }
-
-    public record Song(File file, String title, String artist, String album, String duration, byte[] coverArt) {}
 }
