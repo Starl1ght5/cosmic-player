@@ -13,7 +13,7 @@ target/
 .project
 .classpath
 bin/
-vlc/
 build/
 nb-configuration.xml
 nbactions.xml
+/vlc/
