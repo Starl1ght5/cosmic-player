@@ -1,5 +1,6 @@
-package com.stellargear.cosmicplayer.ui;
+package com.stellargear.cosmicplayer.ui.Toolbar;
 
+import com.stellargear.cosmicplayer.viewmodels.PlayerViewModel;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -31,11 +32,17 @@ public class PlayerToolbar {
     private final Button nextBtn = new Button();
     private final Button lastBtn = new Button();
 
+    private final Image playIcon  = loadIcon("IcRoundPlayArrow");
+    private final Image pauseIcon = loadIcon("IcRoundPause");
+    private final Image nextIcon  = loadIcon("IcRoundSkipNext");
+    private final Image prevIcon  = loadIcon("IcRoundSkipPrevious");
+    private final Image shuffleIcon = loadIcon("IcOutlineShuffle");
+
     private final ImageView coverArtBox = new ImageView();
 
     private final ToggleButton shuffleBtn = new ToggleButton();
 
-    private final Slider progressSlider = new Slider(0, 100, 0);
+    private final Slider progressSlider = new Slider(0, 1, 0);
     private final Slider volumeSlider = new Slider(0, 1, 1);
 
     private final VBox songBox = new VBox(songName, artistName);
@@ -47,9 +54,9 @@ public class PlayerToolbar {
 
     private final ImageView playBtnImgView = new ImageView();
 
-    private boolean isPlaying = false;
+    public PlayerToolbar(PlayerViewModel vm) {
+        bind(vm);
 
-    public PlayerToolbar() {
         VBox centerBox = new VBox(3, progressBox, playerBox);
 
         leftBox.setAlignment(Pos.CENTER_LEFT);
@@ -90,29 +97,25 @@ public class PlayerToolbar {
         centerBox.setMaxWidth(Double.MAX_VALUE);
         rightBox.setMaxWidth(Double.MAX_VALUE);
 
-        Image playBtnImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/IcRoundPlayArrow.png")));
-        playBtnImgView.setImage(playBtnImg);
+        playBtnImgView.setImage(playIcon);
         playBtnImgView.setFitHeight(40);
         playBtnImgView.setFitWidth(40);
         playBtnImgView.setPreserveRatio(true);
         playBtn.setGraphic(playBtnImgView);
 
-        Image nextBtnImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/IcRoundSkipNext.png")));
-        ImageView nextBtnImgView = new ImageView(nextBtnImg);
+        ImageView nextBtnImgView = new ImageView(nextIcon);
         nextBtnImgView.setFitHeight(30);
         nextBtnImgView.setFitWidth(30);
         nextBtnImgView.setPreserveRatio(true);
         nextBtn.setGraphic(nextBtnImgView);
 
-        Image lastBtnImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/IcRoundSkipPrevious.png")));
-        ImageView lastBtnImgView = new ImageView(lastBtnImg);
+        ImageView lastBtnImgView = new ImageView(prevIcon);
         lastBtnImgView.setFitHeight(30);
         lastBtnImgView.setFitWidth(30);
         lastBtnImgView.setPreserveRatio(true);
         lastBtn.setGraphic(lastBtnImgView);
 
-        Image shuffleBtnImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/IcOutlineShuffle.png")));
-        ImageView shuffleBtnImgView = new ImageView(shuffleBtnImg);
+        ImageView shuffleBtnImgView = new ImageView(shuffleIcon);
         shuffleBtnImgView.setFitHeight(30);
         shuffleBtnImgView.setFitWidth(30);
         shuffleBtnImgView.setPreserveRatio(true);
@@ -129,67 +132,40 @@ public class PlayerToolbar {
         volumeSlider.getStyleClass().add("volume-slider");
     }
 
-    public void changePlayButton () {
-        if (isPlaying) {
-            Image playBtnImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/IcRoundPause.png")));
-            playBtnImgView.setImage(playBtnImg);
-        } else {
-            Image playBtnImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/IcRoundPlayArrow.png")));
-            playBtnImgView.setImage(playBtnImg);
-        }
+    private void bind(PlayerViewModel vm) {
+        playBtn.setOnAction(e -> vm.togglePlay());
+        nextBtn.setOnAction(e -> vm.next());
+        lastBtn.setOnAction(e -> vm.previous());
+
+        shuffleBtn.selectedProperty().bindBidirectional(vm.shuffleProperty());
+        volumeSlider.valueProperty().bindBidirectional(vm.volumeProperty());
+
+        songName.textProperty().bind(vm.titleProperty());
+        artistName.textProperty().bind(vm.artistProperty());
+        currentTimeLabel.textProperty().bind(vm.currentTimeTextProperty());
+        totalTimeLabel.textProperty().bind(vm.totalTimeTextProperty());
+
+        vm.currentSongProperty().addListener((obs, old, song) ->
+                coverArtBox.setImage(Methods.toImage(song == null ? null : song.coverArt(), 80)));
+
+        vm.playingProperty().addListener((obs, old, isPlaying) ->
+                playBtnImgView.setImage(isPlaying ? pauseIcon : playIcon));
+
+        vm.progressProperty().addListener((obs, old, p) -> {
+            if (!progressSlider.isValueChanging()) {
+                progressSlider.setValue(p.doubleValue());
+            }
+        });
+
+        progressSlider.setOnMouseReleased(e -> vm.seek(progressSlider.getValue()));
     }
 
-    /// Setters
-    public void setSongInfo(String title, String artist, byte[] coverArt) {
-        songName.setText(title);
-        artistName.setText(artist);
-        coverArtBox.setImage(Methods.toImage(coverArt, 80));
-    }
-
-    public void changeIsPlaying (boolean value) {
-        isPlaying = value;
-        changePlayButton();
-    }
-
-    /// Getters
-    public ToggleButton getShuffleBtn () {
-        return shuffleBtn;
+    private static Image loadIcon(String name) {
+        return new Image(Objects.requireNonNull(
+                PlayerToolbar.class.getResourceAsStream("/icons/" + name + ".png")));
     }
 
     public GridPane getNode() {
         return bar;
     }
-
-    public Button getPlayBtn() {
-        return playBtn;
-    }
-
-    public Label getSongLabel() {
-        return songName;
-    }
-
-    public Button getLastButton () {
-        return lastBtn;
-    }
-
-    public Button getNextButton () {
-        return nextBtn;
-    }
-
-    public Slider getVolumeSlider() {
-        return volumeSlider;
-    }
-
-    public Slider getProgressSlider() {
-        return progressSlider;
-    }
-
-    public Label getCurrentTimeLabel() {
-        return currentTimeLabel;
-    }
-
-    public Label getTotalTimeLabel() {
-        return totalTimeLabel;
-    }
-
 }
