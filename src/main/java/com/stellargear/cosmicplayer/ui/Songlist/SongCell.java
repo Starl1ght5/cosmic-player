@@ -1,6 +1,6 @@
-package com.stellargear.cosmicplayer.ui;
+package com.stellargear.cosmicplayer.ui.Songlist;
 
-import com.stellargear.cosmicplayer.services.PlayerService.Song;
+import com.stellargear.cosmicplayer.models.Song;
 
 import javafx.scene.control.ListCell;
 
@@ -24,10 +24,10 @@ public class SongCell extends ListCell<Song> {
         }
 
         if (item == null) {
-            item = new SongListItem(song.file(), song.title(), song.artist(), song.album(), song.duration(), song.coverArt());
+            item = new SongListItem(song.file(), song.title(), song.artist(), song.album(), song.durationMs(), song.coverArt());
             setGraphic(item.getNode());
         } else {
-            item.update(song.file(), song.title(), song.artist(), song.album(), song.duration(), song.coverArt());
+            item.update(song.file(), song.title(), song.artist(), song.album(), song.durationMs(), song.coverArt());
         }
     }
 }
