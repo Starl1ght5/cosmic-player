@@ -1,4 +1,4 @@
-package com.stellargear.cosmicplayer.ui.Songlist;
+package com.stellargear.cosmicplayer.ui.components;
 
 import com.stellargear.cosmicplayer.models.Song;
 

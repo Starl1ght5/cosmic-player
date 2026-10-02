@@ -1,4 +1,4 @@
-package com.stellargear.cosmicplayer.services;
+package com.stellargear.cosmicplayer.services.persistence;
 
 import java.util.prefs.Preferences;
 
