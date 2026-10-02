@@ -16,6 +16,19 @@ import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
 
+/**
+ * Service responsible for audio playback through VLC.
+ *
+ * <p>Exposes observable JavaFX properties ({@link #stateProperty()},
+ * {@link #currentSongProperty()}, {@link #timeProperty()}, {@link #lengthProperty()},
+ * {@link #volumeProperty()}) so UI components can bind to the playback state.</p>
+ *
+ * <p>All media player events are marshaled onto the JavaFX application thread
+ * before updating the observable properties.</p>
+ *
+ * @author Starl1ght5
+ * @since 1.0
+ */
 public class PlayerService {
 
     private final MediaPlayerFactory factory = new MediaPlayerFactory(VLCBundler.discovery(), "--no-video");
@@ -29,6 +42,9 @@ public class PlayerService {
 
     private Runnable onEndReached;
 
+    /**
+     * Creates a new player service and wires up the media player event listeners.
+     */
     public PlayerService() {
         mediaPlayer = factory.mediaPlayers().newMediaPlayer();
 
@@ -79,8 +95,19 @@ public class PlayerService {
         });
     }
 
-    // ---------- Comandos ----------
+    // ---------- Commands ----------
 
+    /**
+     * Plays the given song, resumes the current one, or toggles pause,
+     * depending on the current player state:
+     * <ul>
+     *   <li>If {@code song} differs from the current one, playback starts from the beginning.</li>
+     *   <li>If it is the same song and playback is running, it pauses.</li>
+     *   <li>If it is the same song and playback is paused, it resumes.</li>
+     * </ul>
+     *
+     * @param song the song to play
+     */
     public void playOrResume(Song song) {
         boolean sameSong = song.equals(currentSong.get());
 
@@ -96,15 +123,29 @@ public class PlayerService {
         }
     }
 
+    /**
+     * Seeks to the given position in the current track.
+     *
+     * @param timeMs target position in milliseconds
+     */
     public void seek(long timeMs) {
         mediaPlayer.controls().setTime(timeMs);
         time.set(timeMs);
     }
 
+    /**
+     * Registers a callback invoked when the current track finishes playing.
+     *
+     * @param callback the callback to run, or {@code null} to clear it
+     */
     public void setOnEndReached(Runnable callback) {
         this.onEndReached = callback;
     }
 
+    /**
+     * Releases the media player and the VLC factory. Call this when the
+     * service is no longer needed to free native resources.
+     */
     public void release() {
         mediaPlayer.release();
         factory.release();
@@ -112,27 +153,32 @@ public class PlayerService {
 
     // ---------- Properties ----------
 
+    /** @return the current playback state, for UI binding */
     public ReadOnlyObjectProperty<PlayerState> stateProperty() {
         return state.getReadOnlyProperty();
     }
 
+    /** @return the currently loaded song, for UI binding */
     public ReadOnlyObjectProperty<Song> currentSongProperty() {
         return currentSong.getReadOnlyProperty();
     }
 
+    /** @return the current playback position in milliseconds, for UI binding */
     public ReadOnlyLongProperty timeProperty() {
         return time.getReadOnlyProperty();
     }
 
+    /** @return the total duration of the current song in milliseconds, for UI binding */
     public ReadOnlyLongProperty lengthProperty() {
         return length.getReadOnlyProperty();
     }
 
+    /** @return the volume (0.0 to 1.0), bindable and observable */
     public DoubleProperty volumeProperty() {
         return volume;
     }
 
-    // ---------- Internos ----------
+    // ---------- Internal ----------
 
     private void start(Song song) {
         currentSong.set(song);
@@ -147,6 +193,7 @@ public class PlayerService {
             mediaPlayer.audio().setVolume(0);
             return;
         }
+        // Converts linear volume (0.0–1.0) to VLC's logarithmic scale
         double db = -11.0 * (1 - value);
         double gain = Math.pow(10, db / 20.0);
         mediaPlayer.audio().setVolume((int) Math.round(gain * 100));
