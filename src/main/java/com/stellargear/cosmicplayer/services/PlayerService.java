@@ -3,6 +3,7 @@ package com.stellargear.cosmicplayer.services;
 import com.stellargear.cosmicplayer.models.PlayerState;
 import com.stellargear.cosmicplayer.models.Song;
 
+import com.stellargear.cosmicplayer.services.persistence.VLCBundler;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyLongProperty;
@@ -17,7 +18,7 @@ import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
 
 public class PlayerService {
 
-    private final MediaPlayerFactory factory = new MediaPlayerFactory("--no-video");
+    private final MediaPlayerFactory factory = new MediaPlayerFactory(VLCBundler.discovery(), "--no-video");
     private final MediaPlayer mediaPlayer;
 
     private final ReadOnlyObjectWrapper<PlayerState> state = new ReadOnlyObjectWrapper<>(PlayerState.STOPPED);
