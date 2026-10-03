@@ -1,6 +1,6 @@
-package com.stellargear.cosmicplayer.ui.Toolbar;
+package com.stellargear.cosmicplayer.ui.components;
 
-import com.stellargear.cosmicplayer.viewmodels.PlayerViewModel;
+import com.stellargear.cosmicplayer.viewmodels.PlaybackViewModel;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -19,6 +19,20 @@ import com.stellargear.cosmicplayer.utils.Methods;
 
 import java.util.Objects;
 
+/**
+ * Playback control bar shown at the bottom of the main window.
+ *
+ * <p>Displays the current song info (cover art, title, artist), playback
+ * controls (previous, play/pause, next), a seek slider with time labels,
+ * a volume slider, and a shuffle toggle.</p>
+ *
+ * <p>All UI state is driven by the given {@link PlaybackViewModel}: user
+ * actions call the view model, and view model changes update the UI
+ * automatically through bindings and listeners.</p>
+ *
+ * @author Starl1ght5
+ * @since 1.0
+ */
 public class PlayerToolbar {
 
     private final GridPane bar = new GridPane();
@@ -54,7 +68,12 @@ public class PlayerToolbar {
 
     private final ImageView playBtnImgView = new ImageView();
 
-    public PlayerToolbar(PlayerViewModel vm) {
+    /**
+     * Builds the toolbar and binds it to the given view model.
+     *
+     * @param vm the view model that drives the UI state
+     */
+    public PlayerToolbar(PlaybackViewModel vm) {
         bind(vm);
 
         VBox centerBox = new VBox(3, progressBox, playerBox);
@@ -81,12 +100,12 @@ public class PlayerToolbar {
         coverArtBox.setFitWidth(80);
         coverArtBox.setFitHeight(80);
         coverArtBox.setPreserveRatio(true);
-        
+
         Rectangle clip = new Rectangle(coverArtBox.getFitWidth(), coverArtBox.getFitHeight());
         clip.setArcWidth(30);
         clip.setArcHeight(30);
         coverArtBox.setClip(clip);
-        
+
         HBox.setHgrow(progressSlider, Priority.ALWAYS);
         GridPane.setHgrow(leftBox, Priority.ALWAYS);
         GridPane.setHgrow(centerBox, Priority.ALWAYS);
@@ -132,7 +151,12 @@ public class PlayerToolbar {
         volumeSlider.getStyleClass().add("volume-slider");
     }
 
-    private void bind(PlayerViewModel vm) {
+    /**
+     * Connects UI controls to the view model: buttons invoke view model
+     * commands, sliders and toggles are bidirectionally bound, and labels
+     * and icons update automatically when the view model state changes.
+     */
+    private void bind(PlaybackViewModel vm) {
         playBtn.setOnAction(e -> vm.togglePlay());
         nextBtn.setOnAction(e -> vm.next());
         lastBtn.setOnAction(e -> vm.previous());
@@ -151,6 +175,7 @@ public class PlayerToolbar {
         vm.playingProperty().addListener((obs, old, isPlaying) ->
                 playBtnImgView.setImage(isPlaying ? pauseIcon : playIcon));
 
+        // Avoid fighting the user while they drag the slider
         vm.progressProperty().addListener((obs, old, p) -> {
             if (!progressSlider.isValueChanging()) {
                 progressSlider.setValue(p.doubleValue());
@@ -165,6 +190,11 @@ public class PlayerToolbar {
                 PlayerToolbar.class.getResourceAsStream("/icons/" + name + ".png")));
     }
 
+    /**
+     * Returns the root node of this component, ready to be added to a scene.
+     *
+     * @return the toolbar's root node
+     */
     public GridPane getNode() {
         return bar;
     }
