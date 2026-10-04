@@ -1,5 +1,6 @@
 package com.stellargear.cosmicplayer.ui.components;
 
+import com.stellargear.cosmicplayer.utils.InterfaceUtils;
 import com.stellargear.cosmicplayer.viewmodels.PlaybackViewModel;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -8,7 +9,6 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.image.Image;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -16,8 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 
 import com.stellargear.cosmicplayer.utils.Methods;
-
-import java.util.Objects;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 /**
  * Playback control bar shown at the bottom of the main window.
@@ -46,11 +45,11 @@ public class PlayerToolbar {
     private final Button nextBtn = new Button();
     private final Button lastBtn = new Button();
 
-    private final Image playIcon  = loadIcon("IcRoundPlayArrow");
-    private final Image pauseIcon = loadIcon("IcRoundPause");
-    private final Image nextIcon  = loadIcon("IcRoundSkipNext");
-    private final Image prevIcon  = loadIcon("IcRoundSkipPrevious");
-    private final Image shuffleIcon = loadIcon("IcOutlineShuffle");
+    private final FontIcon playIcon  = new FontIcon("mdi2p-play");
+    private final FontIcon pauseIcon = new FontIcon("mdi2p-pause");
+    private final FontIcon nextIcon  = new FontIcon("mdi2s-skip-next");
+    private final FontIcon prevIcon  = new FontIcon("mdi2s-skip-previous");
+    private final FontIcon shuffleIcon = new FontIcon("mdi2s-shuffle-variant");
 
     private final ImageView coverArtBox = new ImageView();
 
@@ -62,11 +61,9 @@ public class PlayerToolbar {
     private final VBox songBox = new VBox(songName, artistName);
 
     private final HBox leftBox = new HBox(8, coverArtBox, songBox);
-    private final HBox playerBox = new HBox(4, lastBtn, playBtn, nextBtn);
-    private final VBox rightBox = new VBox(4, volumeSlider, shuffleBtn);
+    private final HBox playerBox = new HBox(4, lastBtn, playBtn, nextBtn, shuffleBtn);
+    private final VBox rightBox = new VBox(4, volumeSlider);
     private final HBox progressBox = new HBox(8, currentTimeLabel, progressSlider, totalTimeLabel);
-
-    private final ImageView playBtnImgView = new ImageView();
 
     /**
      * Builds the toolbar and binds it to the given view model.
@@ -81,6 +78,7 @@ public class PlayerToolbar {
         leftBox.setAlignment(Pos.CENTER_LEFT);
         playerBox.setAlignment(Pos.CENTER);
         rightBox.setAlignment(Pos.CENTER);
+        centerBox.setAlignment(Pos.CENTER);
         songBox.setAlignment(Pos.CENTER_LEFT);
 
         progressSlider.setMaxWidth(Double.MAX_VALUE);
@@ -116,29 +114,16 @@ public class PlayerToolbar {
         centerBox.setMaxWidth(Double.MAX_VALUE);
         rightBox.setMaxWidth(Double.MAX_VALUE);
 
-        playBtnImgView.setImage(playIcon);
-        playBtnImgView.setFitHeight(40);
-        playBtnImgView.setFitWidth(40);
-        playBtnImgView.setPreserveRatio(true);
-        playBtn.setGraphic(playBtnImgView);
+        playIcon.setIconSize(32);
+        pauseIcon.setIconSize(32);
+        nextIcon.setIconSize(32);
+        prevIcon.setIconSize(32);
+        shuffleIcon.setIconSize(32);
 
-        ImageView nextBtnImgView = new ImageView(nextIcon);
-        nextBtnImgView.setFitHeight(30);
-        nextBtnImgView.setFitWidth(30);
-        nextBtnImgView.setPreserveRatio(true);
-        nextBtn.setGraphic(nextBtnImgView);
-
-        ImageView lastBtnImgView = new ImageView(prevIcon);
-        lastBtnImgView.setFitHeight(30);
-        lastBtnImgView.setFitWidth(30);
-        lastBtnImgView.setPreserveRatio(true);
-        lastBtn.setGraphic(lastBtnImgView);
-
-        ImageView shuffleBtnImgView = new ImageView(shuffleIcon);
-        shuffleBtnImgView.setFitHeight(30);
-        shuffleBtnImgView.setFitWidth(30);
-        shuffleBtnImgView.setPreserveRatio(true);
-        shuffleBtn.setGraphic(shuffleBtnImgView);
+        playBtn.setGraphic(playIcon);
+        nextBtn.setGraphic(nextIcon);
+        lastBtn.setGraphic(prevIcon);
+        shuffleBtn.setGraphic(shuffleIcon);
 
         songBox.getStyleClass().add("song-box");
         songName.getStyleClass().add("song-name");
@@ -149,6 +134,9 @@ public class PlayerToolbar {
         nextBtn.getStyleClass().add("next-button");
         lastBtn.getStyleClass().add("last-button");
         volumeSlider.getStyleClass().add("volume-slider");
+
+        InterfaceUtils.bindSliderFill(progressSlider);
+        InterfaceUtils.bindSliderFill(volumeSlider);
     }
 
     /**
@@ -173,7 +161,7 @@ public class PlayerToolbar {
                 coverArtBox.setImage(Methods.toImage(song == null ? null : song.coverArt(), 80)));
 
         vm.playingProperty().addListener((obs, old, isPlaying) ->
-                playBtnImgView.setImage(isPlaying ? pauseIcon : playIcon));
+                playBtn.setGraphic(isPlaying ? pauseIcon : playIcon));
 
         // Avoid fighting the user while they drag the slider
         vm.progressProperty().addListener((obs, old, p) -> {
@@ -183,11 +171,6 @@ public class PlayerToolbar {
         });
 
         progressSlider.setOnMouseReleased(e -> vm.seek(progressSlider.getValue()));
-    }
-
-    private static Image loadIcon(String name) {
-        return new Image(Objects.requireNonNull(
-                PlayerToolbar.class.getResourceAsStream("/icons/" + name + ".png")));
     }
 
     /**

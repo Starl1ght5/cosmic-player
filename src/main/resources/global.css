@@ -1,12 +1,70 @@
 .root {
-    -ink-black: #0F0E1C;
     -space-indigo: #1e1b4b;
+    -fx-font-family: "Consolas", monospace;
+
+    -base-bg: #0A0A14;
+    -card-bg: #13132A;
+    -card-bg-hover: #1C1C3A;
+
+    -text-main: #EDEDFF;
+    -text-secondary: #9A9AC0;
+    -text-off: #5E5E85;
+
+    -main-accent: #7C5CFF;
+    -secondary-accent: #22D3EE;
+    -special-accent: #FF5CAA;
+
 }
+
+.title-bar {
+    -fx-background-color: #070710;
+    -fx-padding: 6 8 6 14;
+    -fx-alignment: CENTER_LEFT;
+}
+.title-bar .app-title { -fx-text-fill: -text-main; -fx-font-size: 12px; }
+.window-btn {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-padding: 6 10;
+    -fx-cursor: hand;
+}
+.window-btn .ikonli-font-icon { -fx-icon-color: -main-accent; -fx-icon-size: 14; }
+.window-btn:hover { -fx-background-color: -elevated; }
+.window-btn.close:hover { -fx-background-color: #E5484D; }
+.window-btn.close:hover .ikonli-font-icon { -fx-icon-color: white; }
 
 .song-name {
     -fx-font-size: 16px;
     -fx-text-overrun: ellipsis;
 }
+
+.list-view {
+    -fx-background-color: -base-bg;
+}
+
+.list-view .scroll-bar:vertical .thumb {
+    -fx-background-color: -main-accent;
+}
+
+.list-view .scroll-bar:vertical {
+    -fx-background-color: -base-bg;
+    -fx-pref-width: 14;
+}
+
+.list-view .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: -special-accent;
+    -fx-cursor: hand;
+}
+
+.list-view .scroll-bar .increment-button, .scroll-bar .decrement-button,
+.list-view .scroll-bar .increment-arrow,  .scroll-bar .decrement-arrow {
+    -fx-padding: 0; -fx-background-color: transparent;
+}
+
+.list-cell {
+    -fx-background-color: -base-bg;
+}
+
 
 .song-box {
     -fx-text-background-color: white;
@@ -17,7 +75,7 @@
 .player-toolbar {
     -fx-spacing: 4px;
     -fx-padding: 8px;
-    -fx-background-color: -ink-black;
+    -fx-background-color: -base-bg;
 }
 
 .progress-box {
@@ -25,24 +83,57 @@
 }
 
 .play-button {
-    -fx-padding: 6px;
-    -fx-border-radius: 20px;
     -fx-background-radius: 20px;
     -fx-cursor: hand;
+    -fx-background-color: transparent;
+}
+
+.play-button .ikonli-font-icon {
+    -fx-icon-color: -text-secondary;
+}
+
+.play-button:hover .ikonli-font-icon {
+    -fx-icon-color: white;
+}
+
+.play-button:selected .ikonli-font-icon {
+    -fx-icon-color: -main-accent;
 }
 
 .shuffle-button {
-    -fx-padding: 4px;
-    -fx-border-radius: 10px;
     -fx-background-radius: 10px;
     -fx-cursor: hand;
+    -fx-background-color: transparent;
+}
+
+.shuffle-button .ikonli-font-icon {
+    -fx-icon-color: -text-secondary;
+}
+
+.shuffle-button:hover .ikonli-font-icon {
+    -fx-icon-color: white;
+}
+
+.shuffle-button:selected .ikonli-font-icon {
+    -fx-icon-color: -main-accent;
 }
 
 .next-button {
-    -fx-padding: 4px;
-    -fx-border-radius: 10px;
     -fx-background-radius: 10px;
     -fx-cursor: hand;
+    -fx-background-color: transparent;
+}
+
+.next-button:hover .ikonli-font-icon {
+    -fx-icon-color: white;
+}
+
+.next-button:selected .ikonli-font-icon {
+    -fx-icon-color: -main-accent;
+}
+
+.next-button .ikonli-font-icon {
+    -fx-icon-color: -text-secondary;
 }
 
 .last-button {
@@ -50,6 +141,19 @@
     -fx-border-radius: 10px;
     -fx-background-radius: 10px;
     -fx-cursor: hand;
+    -fx-background-color: transparent;
+}
+
+.last-button .ikonli-font-icon {
+    -fx-icon-color: -text-secondary;
+}
+
+.last-button:hover .ikonli-font-icon {
+    -fx-icon-color: white;
+}
+
+.last-button:selected .ikonli-font-icon {
+    -fx-icon-color: -main-accent;
 }
 
 .volume-slider {
@@ -57,33 +161,58 @@
 }
 
 .list-item {
-    -fx-background-color: #0f1020;
+    -fx-background-color: -card-bg;
     -fx-background-radius: 12;
     -fx-cursor: hand;
 }
 
 .list-item:hover {
-    -fx-background-color: #1a1b33;
+    -fx-background-color: -card-bg-hover;
+}
+
+.list-item:active {
+    -fx-background-color: -item-bg-active;
+    -fx-border-color: -special-accent;
+    -fx-border-width: 2;
+    -fx-border-radius: 5;
 }
 
 .song-name-label {
-    -fx-text-fill: white;
-    -fx-font-size: 15px;
-    -fx-font-weight: bold;
+    -fx-text-fill: -text-main;
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
 }
 
 .artist-name-label {
-    -fx-text-fill: #c4c7e0;
-    -fx-font-size: 13px;
+    -fx-text-fill: -text-secondary;
+    -fx-font-size: 14px;
 }
 
 .album-name-label {
-    -fx-text-fill: #8a8da8;
-    -fx-font-size: 12px;
+    -fx-text-fill: -text-secondary;
+    -fx-font-size: 14px;
 }
 
 .duration-label {
-    -fx-text-fill: #c4c7e0;
-    -fx-font-size: 14px;
-    -fx-font-family: "Consolas", monospace;
+    -fx-text-fill: -text-off;
+    -fx-font-size: 12px;
+}
+
+.sidepanel {
+    -fx-background-color: #141722;
+}
+
+.sidepanel-button {
+    -fx-text-fill: #8A90B0;
+}
+
+.library-page-main {
+    -fx-background-color: -base-bg;
+}
+
+.library-page-main-label {
+    -fx-padding: 8px;
+    -fx-text-fill: -text-main;
+    -fx-font-size: 20px;
+    -fx-font-weight: 600;
 }

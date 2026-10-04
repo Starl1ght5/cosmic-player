@@ -21,12 +21,15 @@ public class SidePanel {
             button.setToggleGroup(group);
             button.setSelected(section == selected.get());
             button.setOnAction(e -> selected.set(section));
+            button.getStyleClass().add("sidepanel-button");
             layout.getChildren().add(button);
         }
 
         group.selectedToggleProperty().addListener((obs, old, now) -> {
             if (now == null && old != null) old.setSelected(true);
         });
+
+        layout.getStyleClass().add("sidepanel");
     }
 
     public ObjectProperty<Sections> selectedSectionProperty() { return selected; }
