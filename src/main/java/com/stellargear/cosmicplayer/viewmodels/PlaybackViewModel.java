@@ -1,39 +1,30 @@
 package com.stellargear.cosmicplayer.viewmodels;
 
-import java.io.File;
 import java.util.List;
 
 import com.stellargear.cosmicplayer.models.PlayerState;
 import com.stellargear.cosmicplayer.models.Song;
-import com.stellargear.cosmicplayer.services.LibraryService;
-import com.stellargear.cosmicplayer.services.PlaybackQueue;
-import com.stellargear.cosmicplayer.services.PlayerService;
-import com.stellargear.cosmicplayer.services.SettingsService;
+import com.stellargear.cosmicplayer.services.*;
 import com.stellargear.cosmicplayer.utils.TimeFormatter;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 
-public class PlayerViewModel {
+
+public class PlaybackViewModel {
 
     private final PlayerService player;
     private final PlaybackQueue queue;
     private final LibraryService library;
-    private final SettingsService settings;
 
     private final ObservableList<Song> songs = FXCollections.observableArrayList();
     private final ObjectProperty<Song> selectedSong = new SimpleObjectProperty<>();
+
     private final BooleanProperty shuffle = new SimpleBooleanProperty(false);
 
     private final StringBinding title;
@@ -43,12 +34,15 @@ public class PlayerViewModel {
     private final DoubleBinding progress;
     private final BooleanBinding playing;
 
-    public PlayerViewModel(PlayerService player, PlaybackQueue queue,
-                           LibraryService library, SettingsService settings) {
+    private static final String LIBRARY_ID = "library";
+
+    private List<Song> queueContext = List.of();
+
+
+    public PlaybackViewModel(PlayerService player, PlaybackQueue queue, LibraryService library) {
         this.player = player;
         this.queue = queue;
         this.library = library;
-        this.settings = settings;
 
         title = Bindings.createStringBinding(() -> {
             Song s = player.currentSongProperty().get();
@@ -75,34 +69,34 @@ public class PlayerViewModel {
         }, player.timeProperty(), player.lengthProperty());
 
         playing = player.stateProperty().isEqualTo(PlayerState.PLAYING);
-
         shuffle.addListener((obs, old, value) -> queue.setShuffle(value));
         player.setOnEndReached(this::next);
     }
 
     // ---------- Comandos (lo que la UI puede pedir) ----------
 
-    public void play(Song song) {
+    public void playFrom(List<Song> context, Song song) {
         if (song == null) return;
-        queue.select(song);
-        player.playOrResume(song);
+        setContext(context);
+        start(song);
     }
 
     public void togglePlay() {
-        Song target = selectedSong.get() != null
-                ? selectedSong.get()
-                : player.currentSongProperty().get();
+        Song current = player.currentSongProperty().get();
 
-        play(target != null ? target : queue.next());
+        if (current != null) {
+            player.playOrResume(current);
+            return;
+        }
+
+        List<Song> all = library.getSongs();
+        if (all.isEmpty()) return;
+        setContext(all);
+        start(queue.next());
     }
 
-    public void next() {
-        play(queue.next());
-    }
-
-    public void previous() {
-        play(queue.previous());
-    }
+    public void next()     { start(queue.next()); }
+    public void previous() { start(queue.previous()); }
 
     public void seek(double fraction) {
         long total = player.lengthProperty().get();
@@ -111,50 +105,24 @@ public class PlayerViewModel {
         }
     }
 
-    public void loadFolder(String path) {
-        settings.setMusicFolder(path);
-
-        Task<List<Song>> task = new Task<>() {
-            @Override
-            protected List<Song> call() {
-                return library.loadSongs(path);
-            }
-        };
-
-        task.setOnSucceeded(e -> {
-            List<Song> loaded = task.getValue();
-            songs.setAll(loaded);
-            queue.setSongs(loaded);
-        });
-        task.setOnFailed(e -> task.getException().printStackTrace());
-
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
-    }
-
-    public boolean loadSavedFolder() {
-        String saved = settings.getMusicFolder();
-        if (saved == null || !new File(saved).isDirectory()) return false;
-        loadFolder(saved);
-        return true;
-    }
-
-    public String getMusicFolder() {
-        return settings.getMusicFolder();
-    }
-
     public void dispose() {
         player.release();
     }
 
-    // ---------- Estado que la UI observa ----------
-
-    public ObservableList<Song> getSongs() {
-        return FXCollections.unmodifiableObservableList(songs);
+    private void setContext(List<Song> context) {
+        if (!queueContext.equals(context)) {
+            queueContext = List.copyOf(context);
+            queue.setSongs(queueContext);
+        }
     }
 
-    public ObjectProperty<Song> selectedSongProperty() { return selectedSong; }
+    private void start(Song song) {
+        if (song == null) return;
+        queue.select(song);
+        player.playOrResume(song);
+    }
+
+    // ---------- Estado que la UI observa ----------
 
     public ReadOnlyObjectProperty<Song> currentSongProperty() { return player.currentSongProperty(); }
 
